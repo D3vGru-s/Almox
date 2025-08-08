@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Almoxarifado</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Tela de Login -->
+    <div id="login-container" class="login-container">
+        <div class="login-box">
+            <h1>Sistema de Almoxarifado</h1>
+            <h2>Filial 738 - BETA 2.0</h2>
+            <form id="form-login">
+                <div class="input-group">
+                    <label for="usuario">Usuário:</label>
+                    <input type="text" id="usuario" required>
+                </div>
+                <div class="input-group">
+                    <label for="senha">Senha:</label>
+                    <input type="password" id="senha" required>
+                </div>
+                <button type="submit">Entrar</button>
+            </form>
+            <div id="mensagem-login" class="mensagem-login"></div>
+        </div>
+    </div>
+
+    <!-- Sistema Principal -->
+    <div id="sistema-principal" class="sistema-principal" style="display: none;">
+        <header>
+            <nav class="sidebar">
+                <div class="logo">
+                    <h2>📦 Almoxarifado</h2>
+                    <span class="versao">v2.0 BETA</span>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button id="btn-dashboard" class="nav-btn active">
+                        <span class="icon">📊</span>
+                        Dashboard
+                    </button>
+                    <button id="btn-produtos" class="nav-btn">
+                        <span class="icon">📋</span>
+                        Produtos
+                    </button>
+                    <button id="btn-entrada" class="nav-btn">
+                        <span class="icon">📦</span>
+                        Entrada
+                    </button>
+                    <button id="btn-saida" class="nav-btn">
+                        <span class="icon">📤</span>
+                        Saída
+                    </button>
+                    <button id="btn-estoque" class="nav-btn">
+                        <span class="icon">📋</span>
+                        Estoque
+                    </button>
+                    <button id="btn-relatorios" class="nav-btn">
+                        <span class="icon">📈</span>
+                        Relatórios
+                    </button>
+                    <button id="btn-usuarios" class="nav-btn">
+                        <span class="icon">👥</span>
+                        Usuários
+                    </button>
+                    <button id="btn-aprovacoes" class="nav-btn">
+                        <span class="icon">✅</span>
+                        Aprovações
+                        <span id="contador-aprovacoes" class="contador-notificacao" style="display: none;">0</span>
+                    </button>
+                    <button id="btn-perfil" class="nav-btn">
+                        <span class="icon">👤</span>
+                        Meu Perfil
+                    </button>
+                </div>
+
+                <div class="user-info">
+                    <div id="info-usuario">Não conectado</div>
+                    <div id="horario-atual"></div>
+                    <button id="btn-alternar-tema" class="btn-tema">🌙</button>
+                    <button id="btn-logout" class="btn-logout">🚪 Sair</button>
+                </div>
+            </nav>
+        </header>
+
+        <main class="content">
+            <!-- Dashboard -->
+            <section id="dashboard" class="active">
+                <h2>Dashboard - Visão Geral</h2>
+                <div class="dashboard-cards">
+                    <div class="card">
+                        <h3>Total de Produtos</h3>
+                        <span id="total-produtos" class="number">0</span>
+                    </div>
+                    <div class="card">
+                        <h3>Total de Itens</h3>
+                        <span id="total-itens" class="number">0</span>
+                    </div>
+                    <div class="card">
+                        <h3>Estoque Baixo</h3>
+                        <span id="estoque-baixo" class="number alert">0</span>
+                    </div>
+                </div>
+
+                <div id="alerta-estoque-baixo" class="alerta-estoque" style="display: none;">
+                    ATENÇÃO: Produtos com estoque baixo!
+                </div>
+
+                <div class="historico-recente">
+                    <h3>Últimas Movimentações</h3>
+                    <table id="tabela-historico">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Produto</th>
+                                <th>Quantidade</th>
+                                <th>Usuário</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Cadastro de Produtos -->
+            <section id="produtos">
+                <h2>Cadastro de Produtos</h2>
+                <form id="form-cadastro-produto" class="form-produto">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="nome-produto">Nome do Produto:</label>
+                            <input type="text" id="nome-produto" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="codigo-produto">Código (opcional):</label>
+                            <input type="text" id="codigo-produto">
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="categoria-produto">Categoria:</label>
+                            <select id="categoria-produto" required>
+                                <option value="">Selecione</option>
+                                <option value="Escritório">Escritório</option>
+                                <option value="Limpeza">Limpeza</option>
+                                <option value="Informática">Informática</option>
+                                <option value="Manutenção">Manutenção</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="estoque-minimo">Estoque Mínimo:</label>
+                            <input type="number" id="estoque-minimo" min="0" value="10" required>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="valor-unitario">Valor Unitário (R$):</label>
+                            <input type="number" id="valor-unitario" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="input-group">
+                            <!-- Espaço vazio para alinhamento -->
+                        </div>
+                    </div>
+                    <button type="submit">Cadastrar Produto</button>
+                </form>
+
+                <div class="produtos-cadastrados">
+                    <h3>Produtos Cadastrados</h3>
+                    <table id="tabela-produtos-cadastrados">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Código</th>
+                                <th>Categoria</th>
+                                <th>Estoque Mín.</th>
+                                <th>Valor Unit.</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Entrada de Produtos -->
+            <section id="entrada">
+                <h2>Entrada de Produtos</h2>
+                <form id="form-entrada" class="form-produto">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="produto-entrada">Produto:</label>
+                            <select id="produto-entrada" required>
+                                <option value="">Selecione um produto cadastrado</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="quantidade-entrada">Quantidade:</label>
+                            <input type="number" id="quantidade-entrada" min="1" required>
+                        </div>
+                    </div>
+                    <button type="submit">Adicionar ao Estoque</button>
+                </form>
+            </section>
+
+            <!-- Saída de Produtos -->
+            <section id="saida">
+                <h2>Saída de Produtos</h2>
+                <form id="form-saida" class="form-produto">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="produto-saida">Produto:</label>
+                            <select id="produto-saida" required>
+                                <option value="">Selecione um produto cadastrado</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="quantidade-saida">Quantidade:</label>
+                            <input type="number" id="quantidade-saida" min="1" required>
+                        </div>
+                    </div>
+                    <button type="submit">Retirar do Estoque</button>
+                </form>
+            </section>
+
+            <!-- Estoque -->
+            <section id="estoque">
+                <h2>Estoque Atual</h2>
+                <table id="tabela-estoque">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Código</th>
+                            <th>Categoria</th>
+                            <th>Quantidade</th>
+                            <th>Estoque Mín.</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+
+            <!-- Relatórios -->
+            <section id="relatorios">
+                <h2>Relatórios</h2>
+                <div class="relatorios-opcoes">
+                    <button onclick="sistema.exportarCSV()" class="btn-relatorio">📄 Exportar CSV</button>
+                    <button onclick="sistema.fazerBackup()" class="btn-relatorio">💾 Fazer Backup</button>
+                </div>
+                <p>Relatórios de entrada, saída e estoque.</p>
+            </section>
+
+            <!-- Usuários -->
+            <section id="usuarios">
+                <h2>Gerenciamento de Usuários</h2>
+                <form id="form-usuario" class="form-produto">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="username-usuario">Nome de usuário:</label>
+                            <input type="text" id="username-usuario" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="nome-usuario">Nome completo:</label>
+                            <input type="text" id="nome-usuario" required>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="password-usuario">Senha:</label>
+                            <input type="password" id="password-usuario" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="permissoes-usuario">Permissões:</label>
+                            <input type="text" id="permissoes-usuario" placeholder="entrada,saida,estoque" required>
+                        </div>
+                    </div>
+                    <button type="submit">Criar Usuário</button>
+                </form>
+
+                <div class="usuarios-lista">
+                    <h3>Usuários Cadastrados</h3>
+                    <table id="tabela-usuarios">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Usuário</th>
+                                <th>Entrada</th>
+                                <th>Saída</th>
+                                <th>Estoque</th>
+                                <th>Relatórios</th>
+                                <th>Usuários</th>
+                                <th>Produtos</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Perfil do Usuário -->
+            <section id="perfil">
+                <h2>Meu Perfil</h2>
+                <div class="perfil-container">
+                    <div class="perfil-foto">
+                        <div id="foto-usuario" class="foto-preview">
+                            <span id="iniciais-usuario">UN</span>
+                        </div>
+                        <input type="file" id="upload-foto" accept="image/*" style="display: none;">
+                        <button type="button" id="btn-trocar-foto" class="btn-foto">📷 Trocar Foto</button>
+                        <button type="button" id="btn-remover-foto" class="btn-foto btn-remover" style="display: none;">🗑️ Remover Foto</button>
+                    </div>
+                    
+                    <form id="form-perfil" class="form-produto">
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label for="perfil-nome">Nome Completo:</label>
+                                <input type="text" id="perfil-nome" required>
+                            </div>
+                            <div class="input-group">
+                                <label for="perfil-email">E-mail:</label>
+                                <input type="email" id="perfil-email">
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label for="perfil-telefone">Telefone:</label>
+                                <input type="tel" id="perfil-telefone">
+                            </div>
+                            <div class="input-group">
+                                <label for="perfil-cargo">Cargo:</label>
+                                <input type="text" id="perfil-cargo">
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label for="perfil-departamento">Departamento:</label>
+                                <input type="text" id="perfil-departamento">
+                            </div>
+                            <div class="input-group">
+                                <label for="perfil-data-nascimento">Data de Nascimento:</label>
+                                <input type="date" id="perfil-data-nascimento">
+                            </div>
+                        </div>
+                        <button type="submit">Atualizar Perfil</button>
+                    </form>
+
+                    <div class="alterar-senha">
+                        <h3>Alterar Senha</h3>
+                        <form id="form-alterar-senha" class="form-produto">
+                            <div class="form-grid">
+                                <div class="input-group">
+                                    <label for="senha-atual">Senha Atual:</label>
+                                    <input type="password" id="senha-atual" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="nova-senha">Nova Senha:</label>
+                                    <input type="password" id="nova-senha" required>
+                                </div>
+                            </div>
+                            <div class="form-grid">
+                                <div class="input-group">
+                                    <label for="confirmar-senha">Confirmar Nova Senha:</label>
+                                    <input type="password" id="confirmar-senha" required>
+                                </div>
+                                <div class="input-group">
+                                    <!-- Espaço vazio para alinhamento -->
+                                </div>
+                            </div>
+                            <button type="submit">Alterar Senha</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Aprovações -->
+            <section id="aprovacoes">
+                <h2>Sistema de Aprovações</h2>
+                
+                <!-- Filtros -->
+                <div class="aprovacoes-filtros">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="filtro-tipo">Tipo de Solicitação:</label>
+                            <select id="filtro-tipo">
+                                <option value="">Todos</option>
+                                <option value="perfil">Alteração de Perfil</option>
+                                <option value="produto">Produto Alto Valor</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="filtro-status">Status:</label>
+                            <select id="filtro-status">
+                                <option value="">Todos</option>
+                                <option value="pendente">Pendente</option>
+                                <option value="aprovado">Aprovado</option>
+                                <option value="rejeitado">Rejeitado</option>
+                                <option value="aprovado_com_modificacao">Aprovado com Modificação</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="button" id="btn-aplicar-filtro" class="btn-relatorio">🔍 Filtrar</button>
+                </div>
+
+                <!-- Lista de Aprovações -->
+                <div class="aprovacoes-lista">
+                    <table id="tabela-aprovacoes">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Usuário</th>
+                                <th>Tipo</th>
+                                <th>Descrição</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <!-- Status de Minhas Solicitações (para usuários não-admin) -->
+                <div id="minhas-solicitacoes" class="minhas-solicitacoes" style="display: none;">
+                    <h3>Minhas Solicitações</h3>
+                    <table id="tabela-minhas-solicitacoes">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Tipo</th>
+                                <th>Descrição</th>
+                                <th>Status</th>
+                                <th>Comentários</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Modal de Aprovação -->
+            <div id="modal-aprovacao" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Detalhes da Solicitação</h3>
+                        <button type="button" class="btn-fechar-modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="detalhes-solicitacao"></div>
+                        
+                        <div class="form-aprovacao">
+                            <div class="input-group">
+                                <label for="comentario-aprovacao">Comentários:</label>
+                                <textarea id="comentario-aprovacao" rows="3" placeholder="Adicione comentários sobre sua decisão..."></textarea>
+                            </div>
+                            
+                            <div class="acoes-aprovacao">
+                                <button type="button" id="btn-aprovar" class="btn-aprovar">✅ Aprovar</button>
+                                <button type="button" id="btn-aprovar-modificacao" class="btn-modificacao">📝 Aprovar com Modificação</button>
+                                <button type="button" id="btn-rejeitar" class="btn-rejeitar">❌ Rejeitar</button>
+                                <button type="button" id="btn-cancelar-modal" class="btn-cancelar">Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notificações -->
+    <div id="notificacao" class="notificacao" style="display: none;"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
